@@ -4,13 +4,13 @@ export default function StudentList() {
   const [students, setStudents] = useState([
     { id: 1, name: "Nguyen Thanh Tu", class: "DHKTPM18ATT", age: 21 },
     { id: 2, name: "Tran Quoc Bao", class: "DHKTPM18BTT", age: 21 },
+    { id: 2, name: "Nguyen Viet Khoa", class: "DHKTPM1CTT", age: 21 },
+
   ]);
 
-  const [newStudent, setNewStudent] = useState({
-    name: "",
-    class: "",
-    age: "",
-  });
+  const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
+  const [editingId, setEditingId] = useState(null);
+  const [editedStudent, setEditedStudent] = useState({ name: "", class: "", age: "" });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +33,28 @@ export default function StudentList() {
     if (confirmed) {
       setStudents(students.filter((sv) => sv.id !== id));
     }
+  };
+
+  const handleEdit = (sv) => {
+    setEditingId(sv.id);
+    setEditedStudent({ name: sv.name, class: sv.class, age: sv.age });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditedStudent({ ...editedStudent, [name]: value });
+  };
+
+  const handleSave = (id) => {
+    const updated = students.map((sv) =>
+      sv.id === id ? { ...sv, ...editedStudent, age: parseInt(editedStudent.age) } : sv
+    );
+    setStudents(updated);
+    setEditingId(null);
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
   };
 
   return (
@@ -90,17 +112,69 @@ export default function StudentList() {
                 key={sv.id}
                 className={idx % 2 === 0 ? "bg-gray-50" : "bg-white hover:bg-gray-100"}
               >
-                <td className="px-4 py-3 border-b">{sv.name}</td>
-                <td className="px-4 py-3 border-b">{sv.class}</td>
-                <td className="px-4 py-3 border-b">{sv.age}</td>
-                <td className="px-4 py-3 border-b">
-                  <button
-                    onClick={() => handleDelete(sv.id)}
-                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition"
-                  >
-                    Xoá
-                  </button>
-                </td>
+                {editingId === sv.id ? (
+                  <>
+                    <td className="px-4 py-3 border-b">
+                      <input
+                        name="name"
+                        value={editedStudent.name}
+                        onChange={handleEditChange}
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3 border-b">
+                      <input
+                        name="class"
+                        value={editedStudent.class}
+                        onChange={handleEditChange}
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3 border-b">
+                      <input
+                        name="age"
+                        type="number"
+                        value={editedStudent.age}
+                        onChange={handleEditChange}
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                    </td>
+                    <td className="px-4 py-3 border-b space-x-2">
+                      <button
+                        onClick={() => handleSave(sv.id)}
+                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                      >
+                        Lưu
+                      </button>
+                      <button
+                        onClick={handleCancel}
+                        className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
+                      >
+                        Huỷ
+                      </button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td className="px-4 py-3 border-b">{sv.name}</td>
+                    <td className="px-4 py-3 border-b">{sv.class}</td>
+                    <td className="px-4 py-3 border-b">{sv.age}</td>
+                    <td className="px-4 py-3 border-b space-x-2">
+                      <button
+                        onClick={() => handleEdit(sv)}
+                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        onClick={() => handleDelete(sv.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      >
+                        Xoá
+                      </button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>

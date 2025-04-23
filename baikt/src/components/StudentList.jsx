@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from "react";
+import StudentItem from "./StudentItem"; // Import component StudentItem
 
 export default function StudentList() {
-  const [students, setStudents] = useState([]);
+  // Load dữ liệu từ localStorage khi trang được tải lại
+  const loadStudentsFromLocalStorage = () => {
+    const savedStudents = localStorage.getItem("students");
+    return savedStudents ? JSON.parse(savedStudents) : [];
+  };
+
+  // Khởi tạo state với dữ liệu từ localStorage hoặc mảng rỗng nếu không có dữ liệu
+  const [students, setStudents] = useState(loadStudentsFromLocalStorage());
+
   const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
   const [editingId, setEditingId] = useState(null);
   const [editedStudent, setEditedStudent] = useState({ name: "", class: "", age: "" });
   const [selectedClass, setSelectedClass] = useState(""); // Trạng thái cho lớp đã chọn
 
-  // Hàm để lưu dữ liệu vào localStorage
-  const saveToLocalStorage = (students) => {
+  // Hàm lưu danh sách sinh viên vào localStorage khi có thay đổi
+  const saveStudentsToLocalStorage = (students) => {
     localStorage.setItem("students", JSON.stringify(students));
   };
 
-  // Hàm lấy dữ liệu từ localStorage
-  const loadFromLocalStorage = () => {
-    const storedStudents = localStorage.getItem("students");
-    return storedStudents ? JSON.parse(storedStudents) : [];
-  };
-
-  // Load danh sách sinh viên khi component được mount
   useEffect(() => {
-    setStudents(loadFromLocalStorage());
-  }, []);
+    // Đồng bộ dữ liệu với localStorage mỗi khi danh sách sinh viên thay đổi
+    saveStudentsToLocalStorage(students);
+  }, [students]); // Mỗi khi state `students` thay đổi, gọi hàm lưu vào localStorage
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +37,6 @@ export default function StudentList() {
       const student = { ...newStudent, id: newId, age: parseInt(newStudent.age) };
       const updatedStudents = [...students, student];
       setStudents(updatedStudents);
-      saveToLocalStorage(updatedStudents); // Lưu vào localStorage
       setNewStudent({ name: "", class: "", age: "" });
     } else {
       alert("Vui lòng nhập đầy đủ thông tin!");
@@ -46,7 +48,6 @@ export default function StudentList() {
     if (confirmed) {
       const updatedStudents = students.filter((sv) => sv.id !== id);
       setStudents(updatedStudents);
-      saveToLocalStorage(updatedStudents); // Lưu vào localStorage
     }
   };
 
@@ -65,7 +66,6 @@ export default function StudentList() {
       sv.id === id ? { ...sv, ...editedStudent, age: parseInt(editedStudent.age) } : sv
     );
     setStudents(updated);
-    saveToLocalStorage(updated); // Lưu vào localStorage
     setEditingId(null);
   };
 
@@ -142,75 +142,18 @@ export default function StudentList() {
             </tr>
           </thead>
           <tbody>
-            {filteredStudents.map((sv, idx) => (
-              <tr
+            {filteredStudents.map((sv) => (
+              <StudentItem
                 key={sv.id}
-                className={idx % 2 === 0 ? "bg-gray-50" : "bg-white hover:bg-gray-100"}
-              >
-                {editingId === sv.id ? (
-                  <>
-                    <td className="px-4 py-3 border-b">
-                      <input
-                        name="name"
-                        value={editedStudent.name}
-                        onChange={handleEditChange}
-                        className="border px-2 py-1 rounded w-full"
-                      />
-                    </td>
-                    <td className="px-4 py-3 border-b">
-                      <input
-                        name="class"
-                        value={editedStudent.class}
-                        onChange={handleEditChange}
-                        className="border px-2 py-1 rounded w-full"
-                      />
-                    </td>
-                    <td className="px-4 py-3 border-b">
-                      <input
-                        name="age"
-                        type="number"
-                        value={editedStudent.age}
-                        onChange={handleEditChange}
-                        className="border px-2 py-1 rounded w-full"
-                      />
-                    </td>
-                    <td className="px-4 py-3 border-b space-x-2">
-                      <button
-                        onClick={() => handleSave(sv.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                      >
-                        Lưu
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
-                      >
-                        Huỷ
-                      </button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="px-4 py-3 border-b">{sv.name}</td>
-                    <td className="px-4 py-3 border-b">{sv.class}</td>
-                    <td className="px-4 py-3 border-b">{sv.age}</td>
-                    <td className="px-4 py-3 border-b space-x-2">
-                      <button
-                        onClick={() => handleEdit(sv)}
-                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(sv.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Xoá
-                      </button>
-                    </td>
-                  </>
-                )}
-              </tr>
+                student={sv}
+                editingId={editingId}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                handleSave={handleSave}
+                handleCancel={handleCancel}
+                editedStudent={editedStudent}
+                handleEditChange={handleEditChange}
+              />
             ))}
           </tbody>
         </table>

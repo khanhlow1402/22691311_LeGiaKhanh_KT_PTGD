@@ -1,10 +1,9 @@
-// StudentList.jsx
 import React, { useState } from "react";
 
 export default function StudentList() {
   const [students, setStudents] = useState([
-    { id: 1, name: "Nguyễn Văn A", class: "12A1", age: 17 },
-    { id: 2, name: "Trần Thị B", class: "11B2", age: 16 },
+    { id: 1, name: "Nguyen Thanh Tu", class: "DHKTPM18ATT", age: 21 },
+    { id: 2, name: "Tran Quoc Bao", class: "DHKTPM18BTT", age: 21 },
   ]);
 
   const [newStudent, setNewStudent] = useState({
@@ -20,12 +19,19 @@ export default function StudentList() {
 
   const handleAdd = () => {
     if (newStudent.name && newStudent.class && newStudent.age) {
-      const newId = Date.now(); // tạo ID đơn giản
+      const newId = Date.now();
       const student = { ...newStudent, id: newId, age: parseInt(newStudent.age) };
       setStudents([...students, student]);
       setNewStudent({ name: "", class: "", age: "" });
     } else {
       alert("Vui lòng nhập đầy đủ thông tin!");
+    }
+  };
+
+  const handleDelete = (id) => {
+    const confirmed = window.confirm("Bạn có chắc muốn xoá sinh viên này?");
+    if (confirmed) {
+      setStudents(students.filter((sv) => sv.id !== id));
     }
   };
 
@@ -88,7 +94,10 @@ export default function StudentList() {
                 <td className="px-4 py-3 border-b">{sv.class}</td>
                 <td className="px-4 py-3 border-b">{sv.age}</td>
                 <td className="px-4 py-3 border-b">
-                  <button className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition">
+                  <button
+                    onClick={() => handleDelete(sv.id)}
+                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition"
+                  >
                     Xoá
                   </button>
                 </td>

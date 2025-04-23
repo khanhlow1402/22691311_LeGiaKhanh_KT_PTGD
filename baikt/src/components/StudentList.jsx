@@ -1,18 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function StudentList() {
-  const [students, setStudents] = useState([
-    { id: 1, name: "Nguyen Thanh Tu", class: "DHKTPM18ATT", age: 21 },
-    { id: 2, name: "Tran Quoc Bao", class: "DHKTPM18BTT", age: 21 },
-    { id: 3, name: "Nguyen Viet Khoa", class: "DHKTPM1CTT", age: 21 },
-    { id: 4, name: "Le Gia Khanh", class: "DHKTPM18ATT", age: 21 },
-
-  ]);
-
+  const [students, setStudents] = useState([]);
   const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
   const [editingId, setEditingId] = useState(null);
   const [editedStudent, setEditedStudent] = useState({ name: "", class: "", age: "" });
   const [selectedClass, setSelectedClass] = useState(""); // Trạng thái cho lớp đã chọn
+
+  // Hàm để lưu dữ liệu vào localStorage
+  const saveToLocalStorage = (students) => {
+    localStorage.setItem("students", JSON.stringify(students));
+  };
+
+  // Hàm lấy dữ liệu từ localStorage
+  const loadFromLocalStorage = () => {
+    const storedStudents = localStorage.getItem("students");
+    return storedStudents ? JSON.parse(storedStudents) : [];
+  };
+
+  // Load danh sách sinh viên khi component được mount
+  useEffect(() => {
+    setStudents(loadFromLocalStorage());
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +32,9 @@ export default function StudentList() {
     if (newStudent.name && newStudent.class && newStudent.age) {
       const newId = Date.now();
       const student = { ...newStudent, id: newId, age: parseInt(newStudent.age) };
-      setStudents([...students, student]);
+      const updatedStudents = [...students, student];
+      setStudents(updatedStudents);
+      saveToLocalStorage(updatedStudents); // Lưu vào localStorage
       setNewStudent({ name: "", class: "", age: "" });
     } else {
       alert("Vui lòng nhập đầy đủ thông tin!");
@@ -33,7 +44,9 @@ export default function StudentList() {
   const handleDelete = (id) => {
     const confirmed = window.confirm("Bạn có chắc muốn xoá sinh viên này?");
     if (confirmed) {
-      setStudents(students.filter((sv) => sv.id !== id));
+      const updatedStudents = students.filter((sv) => sv.id !== id);
+      setStudents(updatedStudents);
+      saveToLocalStorage(updatedStudents); // Lưu vào localStorage
     }
   };
 
@@ -52,6 +65,7 @@ export default function StudentList() {
       sv.id === id ? { ...sv, ...editedStudent, age: parseInt(editedStudent.age) } : sv
     );
     setStudents(updated);
+    saveToLocalStorage(updated); // Lưu vào localStorage
     setEditingId(null);
   };
 

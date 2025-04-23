@@ -5,12 +5,14 @@ export default function StudentList() {
     { id: 1, name: "Nguyen Thanh Tu", class: "DHKTPM18ATT", age: 21 },
     { id: 2, name: "Tran Quoc Bao", class: "DHKTPM18BTT", age: 21 },
     { id: 3, name: "Nguyen Viet Khoa", class: "DHKTPM1CTT", age: 21 },
+    { id: 4, name: "Le Gia Khanh", class: "DHKTPM18ATT", age: 21 },
+
   ]);
 
   const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
   const [editingId, setEditingId] = useState(null);
   const [editedStudent, setEditedStudent] = useState({ name: "", class: "", age: "" });
-  const [searchTerm, setSearchTerm] = useState("");  // Thêm state tìm kiếm
+  const [selectedClass, setSelectedClass] = useState(""); // Trạng thái cho lớp đã chọn
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,29 +59,14 @@ export default function StudentList() {
     setEditingId(null);
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);  // Cập nhật giá trị tìm kiếm
-  };
-
-  // Lọc danh sách sinh viên theo tên
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase())  // Lọc không phân biệt hoa thường
-  );
+  // Hàm lọc sinh viên theo lớp
+  const filteredStudents = selectedClass
+    ? students.filter((sv) => sv.class === selectedClass)
+    : students;
 
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white rounded-2xl shadow-lg">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">📋 Danh sách sinh viên</h1>
-
-      {/* Ô tìm kiếm */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Tìm kiếm sinh viên theo tên"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="border px-4 py-2 rounded w-full"
-        />
-      </div>
 
       {/* Form thêm sinh viên */}
       <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
@@ -115,7 +102,21 @@ export default function StudentList() {
         </button>
       </div>
 
-      {/* Bảng danh sách */}
+      {/* Dropdown để lọc theo lớp */}
+      <div className="flex mb-6">
+        <select
+          className="border px-4 py-2 rounded w-full md:w-1/4"
+          value={selectedClass}
+          onChange={(e) => setSelectedClass(e.target.value)}
+        >
+          <option value="">Chọn lớp</option>
+          <option value="DHKTPM18ATT">DHKTPM18ATT</option>
+          <option value="DHKTPM18BTT">DHKTPM18BTT</option>
+          <option value="DHKTPM1CTT">DHKTPM1CTT</option>
+        </select>
+      </div>
+
+      {/* Bảng danh sách sinh viên */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto text-left border-collapse">
           <thead>
